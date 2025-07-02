@@ -1,0 +1,22 @@
+FROM python:3.13.4-alpine3.22
+
+LABEL maintainer="Rick"
+
+# Create a non-root user and group to run the application
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+RUN chown -R appuser:appgroup /app
+
+# Switch to the non-root user
+USER appuser
+
+EXPOSE 8000
+
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--reload-dir", "/app"]
